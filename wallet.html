@@ -1,0 +1,2291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pesa Kenya - Mobile Wallet</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2D9CDB;
+            --primary-light: #E6F4FF;
+            --secondary: #27AE60;
+            --danger: #EB5757;
+            --warning: #F2994A;
+            --text: #333333;
+            --text-light: #828282;
+            --background: #F8F8F8;
+            --card-bg: #FFFFFF;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* General Styles */
+        .hidden {
+            display: none !important;
+        }
+
+        .container {
+            max-width: 450px;
+            margin: 0 auto;
+            position: relative;
+            min-height: 100vh;
+            background-color: #ffffea;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1E88C7;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary-light);
+        }
+
+        .btn-block {
+            width: 100%;
+        }
+
+        /* Splash Screen */
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #0b0c01;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.5s ease;
+        }
+
+        .splash-screen.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .app-name {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 8px;
+            animation: fadeIn 1s ease;
+        }
+
+        .app-tagline {
+            font-size: 16px;
+            color: var(--text-light);
+            animation: fadeIn 1s ease 0.3s forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        /* Onboarding Screens */
+        .onboarding {
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .onboarding-icon {
+            width: 100px;
+            height: 100px;
+            background-color: var(--primary-light);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 30px;
+            color: var(--primary);
+            font-size: 40px;
+        }
+
+        .onboarding-title {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .onboarding-desc {
+            color: var(--text-light);
+            margin-bottom: 40px;
+            line-height: 1.5;
+        }
+
+        .indicators {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 30px;
+        }
+
+        .indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #E0E0E0;
+            transition: all 0.3s ease;
+        }
+
+        .indicator.active {
+            background-color: var(--primary);
+            width: 20px;
+            border-radius: 4px;
+        }
+
+        .btn-skip {
+            background-color: transparent;
+            color: var(--text-light);
+        }
+
+        /* Auth Screens */
+        .auth-screen {
+            padding: 30px 20px;
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .auth-logo {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+        }
+
+        .auth-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .auth-subtitle {
+            color: var(--text-light);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #E0E0E0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        .input-prefix {
+            display: flex;
+            align-items: center;
+            border: 1px solid #E0E0E0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .input-prefix:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        .prefix-text {
+            padding: 0 12px;
+            font-weight: 500;
+            background-color: #F5F5F5;
+            height: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .prefix-icon {
+            padding: 0 12px;
+            color: var(--text-light);
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .auth-link {
+            color: var(--primary);
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        /* Dashboard */
+        .dashboard {
+            padding-bottom: 80px;
+        }
+
+        .app-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            background-color: #acb90f;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .app-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .app-actions {
+            display: flex;
+            gap: 16px;
+        }
+
+        .app-action-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: var(--text);
+            cursor: pointer;
+        }
+
+        .balance-card {
+            background-color: #ffd26a;
+            color: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px;
+            box-shadow: var(--shadow);
+            transform: translateY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .balance-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .balance-label {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-bottom: 8px;
+        }
+
+        .balance-amount {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .balance-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            padding: 0 20px;
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .quick-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .quick-action {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .quick-action-icon {
+            width: 56px;
+            height: 56px;
+            background-color: var(--primary-light);
+            border-radius: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--primary);
+            font-size: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .quick-action:hover .quick-action-icon {
+            background-color: var(--primary);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .quick-action-label {
+            font-size: 12px;
+            text-align: center;
+            color: var(--text-light);
+        }
+
+        /* Transactions */
+        .transactions {
+            padding: 0 20px;
+            margin-bottom: 20px;
+        }
+
+        .transactions-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .view-all {
+            color: var(--primary);
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .transaction-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: var(--shadow);
+            margin-bottom: 12px;
+        }
+
+        .transaction-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+        }
+
+        .transaction-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+        }
+
+        .transaction-details {
+            flex: 1;
+        }
+
+        .transaction-title {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .transaction-subtitle {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .transaction-amount {
+            font-weight: 600;
+        }
+
+        .positive {
+            color: var(--secondary);
+        }
+
+        .negative {
+            color: var(--danger);
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #fff4d5;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            z-index: 10;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: var(--text-light);
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        .nav-icon {
+            font-size: 20px;
+        }
+
+        .nav-label {
+            font-size: 12px;
+        }
+
+        /* Modals */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-content {
+            background-color: #ffffea;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 400px;
+            padding: 24px;
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: show;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        /* Animations */
+        .slide-up {
+            animation: slideUp 0.5s ease forwards;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .delay-1 {
+            animation-delay: 0.1s;
+        }
+
+        .delay-2 {
+            animation-delay: 0.2s;
+        }
+
+        .delay-3 {
+            animation-delay: 0.3s;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Profile Picture */
+        .profile-pic {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            background-color: var(--primary-light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .profile-pic img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-pic .initials {
+            font-size: 30px;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .profile-pic-upload {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background-color: var(--primary);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .profile-pic-upload input {
+            display: none;
+        }
+
+        /* File Upload */
+        .file-upload {
+            position: relative;
+            display: inline-block;
+        }
+
+        .file-upload-input {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        /* MPesa Payment Link */
+        .mpesa-link {
+            color: var(--primary);
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            z-index: 30;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        /* Transaction History */
+        .transaction-history {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-light);
+        }
+
+        .empty-state i {
+            font-size: 40px;
+            margin-bottom: 16px;
+            color: var(--primary-light);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Splash Screen -->
+        <div class="splash-screen" id="splashScreen">
+            <div class="logo">
+                <i class="fas fa-wallet" style="font-size: 60px; color: #2D9CDB;"></i>
+            </div>
+            <h1 class="app-name">Pesa Kenya</h1>
+            <p class="app-tagline">Your money, simplified</p>
+        </div>
+
+        <!-- Onboarding Screens -->
+        <div class="onboarding hidden" id="onboardingScreen">
+            <div class="onboarding-slide active" data-index="0">
+                <div class="onboarding-icon">
+                    <i class="fas fa-paper-plane"></i>
+                </div>
+                <h2 class="onboarding-title">Seamless Payments</h2>
+                <p class="onboarding-desc">Send and receive money instantly across Kenya</p>
+            </div>
+            <div class="onboarding-slide hidden" data-index="1">
+                <div class="onboarding-icon" style="background-color: #E6F8F0; color: #27AE60;">
+                    <i class="fas fa-receipt"></i>
+                </div>
+                <h2 class="onboarding-title">Pay Bills</h2>
+                <p class="onboarding-desc">Clear your electricity, water and other bills in seconds</p>
+            </div>
+            <div class="onboarding-slide hidden" data-index="2">
+                <div class="onboarding-icon" style="background-color: #F0E6F8; color: #9B51E0;">
+                    <i class="fas fa-university"></i>
+                </div>
+                <h2 class="onboarding-title">Bank Integration</h2>
+                <p class="onboarding-desc">Connect with all major Kenyan banks and mobile money</p>
+            </div>
+
+            <div class="indicators">
+                <div class="indicator active" data-index="0"></div>
+                <div class="indicator" data-index="1"></div>
+                <div class="indicator" data-index="2"></div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <button class="btn btn-skip" id="skipBtn">Skip</button>
+                <button class="btn btn-primary" id="nextBtn">Next</button>
+            </div>
+        </div>
+
+        <!-- Auth Screens -->
+        <div class="auth-screen hidden" id="authScreen">
+            <!-- Login Screen -->
+            <div id="loginScreen">
+                <div class="auth-header">
+                    <div class="auth-logo">
+                        <i class="fas fa-wallet" style="font-size: 60px; color: #2D9CDB;"></i>
+                    </div>
+                    <h1 class="auth-title">Sign In</h1>
+                    <p class="auth-subtitle">Access your Pesa Kenya wallet</p>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Phone Number</label>
+                    <div class="input-prefix">
+                        <span class="prefix-icon"><i class="fas fa-mobile-alt"></i></span>
+                        <span class="prefix-text">+254</span>
+                        <input type="tel" class="input-field" placeholder="712345678" id="loginPhone" maxlength="9">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">MPesa PIN</label>
+                    <div class="input-prefix">
+                        <span class="prefix-icon"><i class="fas fa-lock"></i></span>
+                        <input type="password" class="input-field" placeholder="Enter your 4-digit PIN" id="loginPin" maxlength="4">
+                    </div>
+                </div>
+
+                <button class="btn btn-primary btn-block" id="loginBtn">Sign In</button>
+
+                <div class="auth-footer">
+                    Don't have an account? <span class="auth-link" id="showRegister">Register</span>
+                </div>
+            </div>
+
+            <!-- Register Screen -->
+            <div id="registerScreen" class="hidden">
+                <div class="auth-header">
+                    <div class="auth-logo">
+                        <i class="fas fa-wallet" style="font-size: 60px; color: #2D9CDB;"></i>
+                    </div>
+                    <h1 class="auth-title">Create Account</h1>
+                    <p class="auth-subtitle">Join Pesa Kenya today</p>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Full Name</label>
+                    <input type="text" class="input-field" placeholder="Enter your full name" id="registerName">
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Phone Number</label>
+                    <div class="input-prefix">
+                        <span class="prefix-icon"><i class="fas fa-mobile-alt"></i></span>
+                        <span class="prefix-text">+254</span>
+                        <input type="tel" class="input-field" placeholder="712345678" id="registerPhone" maxlength="9">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Create MPesa PIN</label>
+                    <div class="input-prefix">
+                        <span class="prefix-icon"><i class="fas fa-lock"></i></span>
+                        <input type="password" class="input-field" placeholder="Create a 4-digit PIN" id="registerPin" maxlength="4">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Confirm MPesa PIN</label>
+                    <div class="input-prefix">
+                        <span class="prefix-icon"><i class="fas fa-lock"></i></span>
+                        <input type="password" class="input-field" placeholder="Confirm your PIN" id="registerPinConfirm" maxlength="4">
+                    </div>
+                </div>
+
+                <button class="btn btn-primary btn-block" id="registerBtn">Create Account</button>
+
+                <div class="auth-footer">
+                    Already have an account? <span class="auth-link" id="showLogin">Sign In</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard -->
+        <div class="dashboard hidden" id="dashboard">
+            <div class="app-bar">
+                <h1 class="app-title">Pesa Kenya</h1>
+                <div class="app-actions">
+                    <button class="app-action-btn" id="notificationsBtn"><i class="fas fa-bell"></i></button>
+                    <button class="app-action-btn" id="profileBtn"><i class="fas fa-user"></i></button>
+                </div>
+            </div>
+
+            <div class="balance-card slide-up">
+                <p class="balance-label">Available Balance</p>
+                <h2 class="balance-amount" id="balanceAmount">KSh 0.00</h2>
+                <div class="balance-actions">
+                    <button class="btn btn-primary" style="flex: 1;" id="depositBtn">
+                        <i class="fas fa-arrow-down"></i> Deposit
+                    </button>
+                    <button class="btn btn-outline" style="flex: 1;" id="withdrawBtn">
+                        <i class="fas fa-arrow-up"></i> Withdraw
+                    </button>
+                </div>
+            </div>
+
+            <div class="quick-actions">
+                <h3 class="section-title">Quick Actions</h3>
+                <div class="quick-actions-grid">
+                    <div class="quick-action" id="sendMoneyBtn">
+                        <div class="quick-action-icon">
+                            <i class="fas fa-paper-plane"></i>
+                        </div>
+                        <span class="quick-action-label">Send</span>
+                    </div>
+                    <div class="quick-action" id="requestMoneyBtn">
+                        <div class="quick-action-icon" style="background-color: #E6F8F0; color: #27AE60;">
+                            <i class="fas fa-hand-holding-usd"></i>
+                        </div>
+                        <span class="quick-action-label">Request</span>
+                    </div>
+                    <div class="quick-action" id="payBillBtn">
+                        <div class="quick-action-icon" style="background-color: #FEF5E6; color: #F2994A;">
+                            <i class="fas fa-receipt"></i>
+                        </div>
+                        <span class="quick-action-label">Pay Bill</span>
+                    </div>
+                    <div class="quick-action" id="buyAirtimeBtn">
+                        <div class="quick-action-icon" style="background-color: #F0E6F8; color: #9B51E0;">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <span class="quick-action-label">Airtime</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="transactions">
+                <div class="transactions-header">
+                    <h3 class="section-title">Recent Transactions</h3>
+                    <span class="view-all" id="viewAllTransactions">View All</span>
+                </div>
+
+                <div class="transaction-card fade-in" id="transactionsList">
+                    <!-- Transactions will be loaded here -->
+                    <div class="empty-state">
+                        <i class="fas fa-exchange-alt"></i>
+                        <p>No transactions yet</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Navigation -->
+            <div class="bottom-nav">
+                <a href="#" class="nav-item active" data-screen="dashboard">
+                    <i class="fas fa-home nav-icon"></i>
+                    <span class="nav-label">Home</span>
+                </a>
+                <a href="#" class="nav-item" data-screen="send">
+                    <i class="fas fa-paper-plane nav-icon"></i>
+                    <span class="nav-label">Send</span>
+                </a>
+                <a href="#" class="nav-item" data-screen="bills">
+                    <i class="fas fa-receipt nav-icon"></i>
+                    <span class="nav-label">Bills</span>
+                </a>
+                <a href="#" class="nav-item" data-screen="more">
+                    <i class="fas fa-ellipsis-h nav-icon"></i>
+                    <span class="nav-label">More</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Modals -->
+        <!-- Deposit Modal -->
+        <div class="modal hidden" id="depositModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Deposit Money</h2>
+                    <button class="modal-close" id="closeDepositModal">&times;</button>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Amount (KSh)</label>
+                    <input type="number" class="input-field" placeholder="Enter amount" id="depositAmount">
+                </div>
+                <p style="margin-bottom: 20px; text-align: center;">
+                    You will be redirected to MPesa to complete the payment
+                </p>
+                <button class="btn btn-primary btn-block" id="confirmDeposit">Proceed to MPesa</button>
+            </div>
+        </div>
+
+        <!-- Withdraw Modal -->
+        <div class="modal hidden" id="withdrawModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Withdraw Money</h2>
+                    <button class="modal-close" id="closeWithdrawModal">&times;</button>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Amount (KSh)</label>
+                    <input type="number" class="input-field" placeholder="Enter amount" id="withdrawAmount">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">MPesa PIN</label>
+                    <div class="input-prefix">
+                        <span class="prefix-icon"><i class="fas fa-lock"></i></span>
+                        <input type="password" class="input-field" placeholder="Enter your PIN" id="withdrawPin" maxlength="4">
+                    </div>
+                </div>
+                <button class="btn btn-primary btn-block" id="confirmWithdraw">Withdraw to MPesa</button>
+            </div>
+        </div>
+
+        <!-- Send Money Modal -->
+        <div class="modal hidden" id="sendMoneyModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Send Money</h2>
+                    <button class="modal-close" id="closeSendMoneyModal">&times;</button>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Recipient Phone Number</label>
+                    <div class="input-prefix">
+                        <span class="prefix-icon"><i class="fas fa-mobile-alt"></i></span>
+                        <span class="prefix-text">+254</span>
+                        <input type="tel" class="input-field" placeholder="712345678" id="recipientPhone" maxlength="9">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Amount (KSh)</label>
+                    <input type="number" class="input-field" placeholder="Enter amount" id="sendAmount">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">MPesa PIN</label>
+                    <div class="input-prefix">
+                        <span class="prefix-icon"><i class="fas fa-lock"></i></span>
+                        <input type="password" class="input-field" placeholder="Enter your PIN" id="sendPin" maxlength="4">
+                    </div>
+                </div>
+                <button class="btn btn-primary btn-block" id="confirmSend">Send Money</button>
+            </div>
+        </div>
+
+        <!-- Pay Bill Modal -->
+        <div class="modal hidden" id="payBillModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Pay Bill</h2>
+                    <button class="modal-close" id="closePayBillModal">&times;</button>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Select Biller</label>
+                    <select class="input-field" id="billerSelect">
+                        <option value="">Select biller</option>
+                        <option value="kplc">KPLC (Electricity)</option>
+                        <option value="nairobi_water">Nairobi Water</option>
+                        <option value="dstv">DSTV</option>
+                        <option value="gotv">GOTV</option>
+                        <option value="zuku">ZUKU</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Account Number</label>
+                    <input type="text" class="input-field" placeholder="Enter account number" id="billAccount">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Amount (KSh)</label>
+                    <input type="number" class="input-field" placeholder="Enter amount" id="billAmount">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">MPesa PIN</label>
+                    <div class="input-prefix">
+                        <span class="prefix-icon"><i class="fas fa-lock"></i></span>
+                        <input type="password" class="input-field" placeholder="Enter your PIN" id="billPin" maxlength="4">
+                    </div>
+                </div>
+                <button class="btn btn-primary btn-block" id="confirmPayBill">Pay Bill</button>
+            </div>
+        </div>
+
+        <!-- Buy Airtime Modal -->
+        <div class="modal hidden" id="buyAirtimeModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Buy Airtime</h2>
+                    <button class="modal-close" id="closeBuyAirtimeModal">&times;</button>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Phone Number</label>
+                    <div class="input-prefix">
+                        <span class="prefix-icon"><i class="fas fa-mobile-alt"></i></span>
+                        <span class="prefix-text">+254</span>
+                        <input type="tel" class="input-field" placeholder="712345678" id="airtimePhone" maxlength="9">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Network</label>
+                    <select class="input-field" id="airtimeNetwork">
+                        <option value="safaricom">Safaricom</option>
+                        <option value="airtel">Airtel</option>
+                        <option value="telkom">Telkom</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Amount (KSh)</label>
+                    <input type="number" class="input-field" placeholder="Enter amount" id="airtimeAmount">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">MPesa PIN</label>
+                    <div class="input-prefix">
+                        <span class="prefix-icon"><i class="fas fa-lock"></i></span>
+                        <input type="password" class="input-field" placeholder="Enter your PIN" id="airtimePin" maxlength="4">
+                    </div>
+                </div>
+                <button class="btn btn-primary btn-block" id="confirmBuyAirtime">Buy Airtime</button>
+            </div>
+        </div>
+
+        <!-- Notifications Modal -->
+        <div class="modal hidden" id="notificationsModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Notifications</h2>
+                    <button class="modal-close" id="closeNotificationsModal">&times;</button>
+                </div>
+                <div class="transaction-history" id="notificationsList">
+                    <!-- Notifications will be loaded here -->
+                    <div class="empty-state">
+                        <i class="fas fa-bell-slash"></i>
+                        <p>No notifications yet</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Modal -->
+        <div class="modal hidden" id="profileModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">My Profile</h2>
+                    <button class="modal-close" id="closeProfileModal">&times;</button>
+                </div>
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div class="profile-pic" id="profilePicContainer">
+                        <!-- Profile picture will be loaded here -->
+                        <div class="initials" id="profileInitials">JD</div>
+                        <img id="profilePic" style="display: none;">
+                        <label class="profile-pic-upload">
+                            <i class="fas fa-camera"></i>
+                            <input type="file" id="profilePicInput" accept="image/*">
+                        </label>
+                    </div>
+                    <h3 id="profileName">John Doe</h3>
+                    <p id="profilePhone">+254712345678</p>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Full Name</label>
+                    <input type="text" class="input-field" id="profileNameInput" placeholder="Full Name">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Phone Number</label>
+                    <div class="input-prefix">
+                        <span class="prefix-icon"><i class="fas fa-mobile-alt"></i></span>
+                        <span class="prefix-text">+254</span>
+                        <input type="tel" class="input-field" id="profilePhoneInput" placeholder="712345678" maxlength="9" disabled>
+                    </div>
+                </div>
+                <button class="btn btn-primary btn-block" id="updateProfileBtn">Update Profile</button>
+                <button class="btn btn-outline btn-block" style="margin-top: 10px;" id="logoutBtn">Logout</button>
+            </div>
+        </div>
+
+        <!-- Transaction History Modal -->
+        <div class="modal hidden" id="transactionHistoryModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Transaction History</h2>
+                    <button class="modal-close" id="closeTransactionHistoryModal">&times;</button>
+                </div>
+                <div class="transaction-history" id="fullTransactionsList">
+                    <!-- Full transaction history will be loaded here -->
+                    <div class="empty-state">
+                        <i class="fas fa-exchange-alt"></i>
+                        <p>No transactions yet</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MPesa Payment Modal -->
+        <div class="modal hidden" id="mpesaPaymentModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Complete MPesa Payment</h2>
+                    <button class="modal-close" id="closeMpesaPaymentModal">&times;</button>
+                </div>
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <i class="fas fa-mobile-alt" style="font-size: 50px; color: var(--primary); margin-bottom: 15px;"></i>
+                    <p>Check your phone to complete the payment via MPesa</p>
+                    <p style="font-weight: bold; margin: 15px 0;">Amount: <span id="mpesaPaymentAmount">KSh 0.00</span></p>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Enter MPesa Transaction Code</label>
+                    <input type="text" class="input-field" placeholder="e.g. QA4567X890" id="mpesaTransactionCode">
+                </div>
+                <button class="btn btn-primary btn-block" id="confirmMpesaPayment">Confirm Payment</button>
+                <button class="btn btn-outline btn-block" style="margin-top: 10px;" id="cancelMpesaPayment">Cancel</button>
+            </div>
+        </div>
+
+        <!-- Toast Notification -->
+        <div class="toast hidden" id="toast">
+            <span id="toastMessage"></span>
+        </div>
+    </div>
+
+    <script>
+        // User Data
+        let users = [];
+        let currentUser = null;
+        let balance = 0;
+        let transactions = [];
+        let notifications = [];
+        let depositInProgress = null;
+
+        // DOM Elements
+        const splashScreen = document.getElementById('splashScreen');
+        const onboardingScreen = document.getElementById('onboardingScreen');
+        const authScreen = document.getElementById('authScreen');
+        const loginScreen = document.getElementById('loginScreen');
+        const registerScreen = document.getElementById('registerScreen');
+        const dashboard = document.getElementById('dashboard');
+        const balanceAmount = document.getElementById('balanceAmount');
+        const transactionsList = document.getElementById('transactionsList');
+        const fullTransactionsList = document.getElementById('fullTransactionsList');
+        const notificationsList = document.getElementById('notificationsList');
+        const profilePicContainer = document.getElementById('profilePicContainer');
+        const profilePic = document.getElementById('profilePic');
+        const profileInitials = document.getElementById('profileInitials');
+        const profilePicInput = document.getElementById('profilePicInput');
+
+        // Initialize the app
+        function initApp() {
+            // Load users from localStorage
+            const storedUsers = localStorage.getItem('pesaKenyaUsers');
+            if (storedUsers) {
+                users = JSON.parse(storedUsers);
+            }
+
+            // Check if user is logged in
+            const loggedInUser = localStorage.getItem('pesaKenyaCurrentUser');
+            if (loggedInUser) {
+                currentUser = JSON.parse(loggedInUser);
+                balance = currentUser.balance || 0;
+                transactions = currentUser.transactions || [];
+                notifications = currentUser.notifications || [];
+                showDashboard();
+            } else {
+                // Show splash screen first
+                setTimeout(() => {
+                    splashScreen.classList.add('fade-out');
+                    setTimeout(() => {
+                        splashScreen.classList.add('hidden');
+                        showOnboarding();
+                    }, 500);
+                }, 2500);
+            }
+        }
+
+        // Show Onboarding
+        function showOnboarding() {
+            onboardingScreen.classList.remove('hidden');
+            setupOnboarding();
+        }
+
+        // Setup Onboarding Slides
+        function setupOnboarding() {
+            const onboardingSlides = document.querySelectorAll('.onboarding-slide');
+            const indicators = document.querySelectorAll('.indicator');
+            const nextBtn = document.getElementById('nextBtn');
+            const skipBtn = document.getElementById('skipBtn');
+            let currentSlide = 0;
+
+            function showSlide(index) {
+                onboardingSlides.forEach(slide => slide.classList.add('hidden'));
+                indicators.forEach(indicator => indicator.classList.remove('active'));
+                
+                onboardingSlides[index].classList.remove('hidden');
+                indicators[index].classList.add('active');
+                currentSlide = index;
+                
+                if (index === onboardingSlides.length - 1) {
+                    nextBtn.textContent = 'Get Started';
+                } else {
+                    nextBtn.textContent = 'Next';
+                }
+            }
+
+            nextBtn.addEventListener('click', () => {
+                if (currentSlide < onboardingSlides.length - 1) {
+                    showSlide(currentSlide + 1);
+                } else {
+                    onboardingScreen.classList.add('hidden');
+                    showAuthScreen();
+                }
+            });
+
+            skipBtn.addEventListener('click', () => {
+                onboardingScreen.classList.add('hidden');
+                showAuthScreen();
+            });
+
+            indicators.forEach((indicator, index) => {
+                indicator.addEventListener('click', () => {
+                    showSlide(index);
+                });
+            });
+
+            showSlide(0);
+        }
+
+        // Show Auth Screen
+        function showAuthScreen() {
+            authScreen.classList.remove('hidden');
+            showLoginScreen();
+        }
+
+        // Show Login Screen
+        function showLoginScreen() {
+            loginScreen.classList.remove('hidden');
+            registerScreen.classList.add('hidden');
+        }
+
+        // Show Register Screen
+        function showRegisterScreen() {
+            loginScreen.classList.add('hidden');
+            registerScreen.classList.remove('hidden');
+        }
+
+        // Show Dashboard
+        function showDashboard() {
+            authScreen.classList.add('hidden');
+            dashboard.classList.remove('hidden');
+            updateBalance();
+            renderTransactions();
+            updateProfileDisplay();
+        }
+
+        // Update Balance Display
+        function updateBalance() {
+            balanceAmount.textContent = `KSh ${balance.toLocaleString('en-KE', {minimumFractionDigits: 2})}`;
+        }
+
+        // Render Transactions
+        function renderTransactions() {
+            transactionsList.innerHTML = '';
+            
+            if (transactions.length === 0) {
+                transactionsList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exchange-alt"></i>
+                        <p>No transactions yet</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Show only the first 3 transactions
+            const transactionsToShow = transactions.slice(0, 3);
+            
+            transactionsToShow.forEach((transaction, index) => {
+                const transactionElement = document.createElement('div');
+                transactionElement.classList.add('transaction-item');
+                if (index > 0) {
+                    transactionElement.classList.add(`delay-${index}`);
+                }
+                
+                transactionElement.innerHTML = `
+                    <div class="transaction-icon" style="background-color: ${transaction.type === 'receive' ? '#E6F8F0' : transaction.type === 'bill' ? '#FEF5E6' : '#FFE6E6'}; color: ${transaction.color}">
+                        <i class="fas ${transaction.icon}"></i>
+                    </div>
+                    <div class="transaction-details">
+                        <div class="transaction-title">${transaction.title}</div>
+                        <div class="transaction-subtitle">${transaction.date}</div>
+                    </div>
+                    <div class="transaction-amount ${transaction.amount > 0 ? 'positive' : 'negative'}">
+                        ${transaction.amount > 0 ? '+' : ''}KSh ${Math.abs(transaction.amount).toLocaleString('en-KE', {minimumFractionDigits: 2})}
+                    </div>
+                `;
+                
+                transactionsList.appendChild(transactionElement);
+                
+                // Add divider if not last item
+                if (index < transactionsToShow.length - 1) {
+                    const divider = document.createElement('hr');
+                    divider.style.border = 'none';
+                    divider.style.borderTop = '1px solid #F2F2F2';
+                    divider.style.margin = '8px 0';
+                    transactionsList.appendChild(divider);
+                }
+            });
+        }
+
+        // Render Full Transaction History
+        function renderFullTransactionHistory() {
+            fullTransactionsList.innerHTML = '';
+            
+            if (transactions.length === 0) {
+                fullTransactionsList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exchange-alt"></i>
+                        <p>No transactions yet</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            transactions.forEach(transaction => {
+                const transactionElement = document.createElement('div');
+                transactionElement.classList.add('transaction-item');
+                
+                transactionElement.innerHTML = `
+                    <div class="transaction-icon" style="background-color: ${transaction.type === 'receive' ? '#E6F8F0' : transaction.type === 'bill' ? '#FEF5E6' : '#FFE6E6'}; color: ${transaction.color}">
+                        <i class="fas ${transaction.icon}"></i>
+                    </div>
+                    <div class="transaction-details">
+                        <div class="transaction-title">${transaction.title}</div>
+                        <div class="transaction-subtitle">${transaction.date}</div>
+                    </div>
+                    <div class="transaction-amount ${transaction.amount > 0 ? 'positive' : 'negative'}">
+                        ${transaction.amount > 0 ? '+' : ''}KSh ${Math.abs(transaction.amount).toLocaleString('en-KE', {minimumFractionDigits: 2})}
+                    </div>
+                `;
+                
+                fullTransactionsList.appendChild(transactionElement);
+                
+                // Add divider
+                const divider = document.createElement('hr');
+                divider.style.border = 'none';
+                divider.style.borderTop = '1px solid #F2F2F2';
+                divider.style.margin = '8px 0';
+                fullTransactionsList.appendChild(divider);
+            });
+        }
+
+        // Render Notifications
+        function renderNotifications() {
+            notificationsList.innerHTML = '';
+            
+            if (notifications.length === 0) {
+                notificationsList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-bell-slash"></i>
+                        <p>No notifications yet</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            notifications.forEach(notification => {
+                const notificationElement = document.createElement('div');
+                notificationElement.classList.add('transaction-item');
+                
+                notificationElement.innerHTML = `
+                    <div class="transaction-icon" style="background-color: ${notification.type === 'receive' ? '#E6F8F0' : notification.type === 'bill' ? '#FEF5E6' : '#FFE6E6'}; color: ${notification.color}">
+                        <i class="fas ${notification.icon}"></i>
+                    </div>
+                    <div class="transaction-details">
+                        <div class="transaction-title">${notification.title}</div>
+                        <div class="transaction-subtitle">${notification.date}</div>
+                    </div>
+                    ${notification.amount ? `
+                    <div class="transaction-amount ${notification.amount > 0 ? 'positive' : 'negative'}">
+                        ${notification.amount > 0 ? '+' : ''}KSh ${Math.abs(notification.amount).toLocaleString('en-KE', {minimumFractionDigits: 2})}
+                    </div>
+                    ` : ''}
+                `;
+                
+                notificationsList.appendChild(notificationElement);
+                
+                // Add divider
+                const divider = document.createElement('hr');
+                divider.style.border = 'none';
+                divider.style.borderTop = '1px solid #F2F2F2';
+                divider.style.margin = '8px 0';
+                notificationsList.appendChild(divider);
+            });
+        }
+
+        // Update Profile Display
+        function updateProfileDisplay() {
+            if (!currentUser) return;
+
+            // Set profile name and phone
+            document.getElementById('profileName').textContent = currentUser.name;
+            document.getElementById('profilePhone').textContent = `+${currentUser.phone}`;
+            document.getElementById('profileNameInput').value = currentUser.name;
+            document.getElementById('profilePhoneInput').value = currentUser.phone.substring(3); // Remove country code
+
+            // Set profile picture or initials
+            if (currentUser.profilePic) {
+                profilePic.src = currentUser.profilePic;
+                profilePic.style.display = 'block';
+                profileInitials.style.display = 'none';
+            } else {
+                // Generate initials
+                const initials = currentUser.name.split(' ').map(name => name[0]).join('').toUpperCase();
+                profileInitials.textContent = initials;
+                profileInitials.style.display = 'block';
+                profilePic.style.display = 'none';
+            }
+        }
+
+        // Show Modal
+        function showModal(modal) {
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.add('active');
+            }, 10);
+        }
+
+        // Hide Modal
+        function hideModal(modal) {
+            modal.classList.remove('active');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        // Show Toast
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toast.style.backgroundColor = isError ? '#EB5757' : '#27AE60';
+            toastMessage.textContent = message;
+            toast.classList.remove('hidden');
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                }, 300);
+            }, 3000);
+        }
+
+        // Register User
+        function registerUser(name, phone, pin) {
+            // Check if user already exists
+            const userExists = users.some(user => user.phone === phone);
+            if (userExists) {
+                showToast('User with this phone number already exists', true);
+                return false;
+            }
+
+            // Create new user with KSh 100 signup bonus
+            const newUser = {
+                id: Date.now().toString(),
+                name,
+                phone,
+                pin,
+                balance: 100, // Signup bonus
+                profilePic: null,
+                transactions: [
+                    {
+                        id: Date.now().toString(),
+                        type: "receive",
+                        title: "Signup Bonus",
+                        amount: 100,
+                        date: new Date().toLocaleString('en-KE', {weekday: 'long', hour: '2-digit', minute: '2-digit'}),
+                        icon: "fa-gift",
+                        color: "#27AE60"
+                    }
+                ],
+                notifications: [
+                    {
+                        id: Date.now().toString(),
+                        type: "receive",
+                        title: "Welcome to Pesa Kenya!",
+                        message: "You've received KSh 100 signup bonus",
+                        date: new Date().toLocaleString('en-KE', {weekday: 'long', hour: '2-digit', minute: '2-digit'}),
+                        icon: "fa-gift",
+                        color: "#27AE60",
+                        read: false
+                    }
+                ]
+            };
+
+            users.push(newUser);
+            localStorage.setItem('pesaKenyaUsers', JSON.stringify(users));
+            
+            // Log in the new user
+            currentUser = newUser;
+            balance = currentUser.balance;
+            transactions = currentUser.transactions;
+            notifications = currentUser.notifications;
+            localStorage.setItem('pesaKenyaCurrentUser', JSON.stringify(currentUser));
+            
+            return true;
+        }
+
+        // Login User
+        function loginUser(phone, pin) {
+            const user = users.find(user => user.phone === phone && user.pin === pin);
+            if (user) {
+                currentUser = user;
+                balance = user.balance || 0;
+                transactions = user.transactions || [];
+                notifications = user.notifications || [];
+                localStorage.setItem('pesaKenyaCurrentUser', JSON.stringify(currentUser));
+                return true;
+            }
+            return false;
+        }
+
+        // Logout User
+        function logoutUser() {
+            currentUser = null;
+            balance = 0;
+            transactions = [];
+            notifications = [];
+            localStorage.removeItem('pesaKenyaCurrentUser');
+            showAuthScreen();
+            dashboard.classList.add('hidden');
+            showLoginScreen();
+        }
+
+        // Update User Profile
+        function updateProfile(name, phone) {
+            if (!currentUser) return false;
+
+            // Update user data
+            currentUser.name = name;
+
+            // Update in users array
+            const userIndex = users.findIndex(user => user.id === currentUser.id);
+            if (userIndex !== -1) {
+                users[userIndex] = currentUser;
+                localStorage.setItem('pesaKenyaUsers', JSON.stringify(users));
+                localStorage.setItem('pesaKenyaCurrentUser', JSON.stringify(currentUser));
+            }
+
+            // Update profile display
+            updateProfileDisplay();
+
+            return true;
+        }
+
+        // Update Profile Picture
+        function updateProfilePicture(file) {
+            if (!currentUser) return false;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                currentUser.profilePic = e.target.result;
+                
+                // Update in users array
+                const userIndex = users.findIndex(user => user.id === currentUser.id);
+                if (userIndex !== -1) {
+                    users[userIndex] = currentUser;
+                    localStorage.setItem('pesaKenyaUsers', JSON.stringify(users));
+                    localStorage.setItem('pesaKenyaCurrentUser', JSON.stringify(currentUser));
+                }
+                
+                // Update display
+                profilePic.src = currentUser.profilePic;
+                profilePic.style.display = 'block';
+                profileInitials.style.display = 'none';
+                
+                showToast('Profile picture updated successfully!');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Deposit Money
+        function initiateDeposit(amount) {
+            if (amount <= 0) {
+                showToast('Please enter a valid amount', true);
+                return false;
+            }
+
+            // Simulate MPesa payment initiation
+            depositInProgress = {
+                amount: amount,
+                timestamp: Date.now()
+            };
+
+            // Show MPesa payment modal
+            document.getElementById('mpesaPaymentAmount').textContent = `KSh ${amount.toLocaleString('en-KE', {minimumFractionDigits: 2})}`;
+            showModal(document.getElementById('mpesaPaymentModal'));
+            hideModal(document.getElementById('depositModal'));
+
+            return true;
+        }
+
+        // Complete Deposit
+        function completeDeposit(transactionCode) {
+            if (!depositInProgress || !transactionCode) {
+                showToast('Invalid deposit attempt', true);
+                return false;
+            }
+
+            const amount = depositInProgress.amount;
+            balance += amount;
+            currentUser.balance = balance;
+
+            // Add transaction
+            const transaction = {
+                id: Date.now().toString(),
+                type: "deposit",
+                title: "Deposit from MPesa",
+                amount: amount,
+                date: new Date().toLocaleString('en-KE', {weekday: 'long', hour: '2-digit', minute: '2-digit'}),
+                icon: "fa-arrow-down",
+                color: "#27AE60"
+            };
+
+            transactions.unshift(transaction);
+            currentUser.transactions.unshift(transaction);
+
+            // Add notification
+            const notification = {
+                id: Date.now().toString(),
+                type: "receive",
+                title: "Deposit Received",
+                message: `You've deposited KSh ${amount.toLocaleString('en-KE', {minimumFractionDigits: 2})}`,
+                amount: amount,
+                date: new Date().toLocaleString('en-KE', {weekday: 'long', hour: '2-digit', minute: '2-digit'}),
+                icon: "fa-arrow-down",
+                color: "#27AE60",
+                read: false
+            };
+
+            notifications.unshift(notification);
+            currentUser.notifications.unshift(notification);
+
+            // Update storage
+            localStorage.setItem('pesaKenyaCurrentUser', JSON.stringify(currentUser));
+            updateBalance();
+            renderTransactions();
+            renderNotifications();
+
+            // Reset deposit in progress
+            depositInProgress = null;
+
+            return true;
+        }
+
+        // Withdraw Money
+        function withdraw(amount, pin) {
+            if (amount <= 0) {
+                showToast('Please enter a valid amount', true);
+                return false;
+            }
+
+            if (amount > balance) {
+                showToast('Insufficient funds', true);
+                return false;
+            }
+
+            if (pin !== currentUser.pin) {
+                showToast('Incorrect PIN', true);
+                return false;
+            }
+
+            balance -= amount;
+            currentUser.balance = balance;
+
+            // Add transaction
+            const transaction = {
+                id: Date.now().toString(),
+                type: "withdraw",
+                title: "Withdrawal to MPesa",
+                amount: -amount,
+                date: new Date().toLocaleString('en-KE', {weekday: 'long', hour: '2-digit', minute: '2-digit'}),
+                icon: "fa-arrow-up",
+                color: "#EB5757"
+            };
+
+            transactions.unshift(transaction);
+            currentUser.transactions.unshift(transaction);
+
+            // Add notification
+            const notification = {
+                id: Date.now().toString(),
+                type: "withdraw",
+                title: "Withdrawal Processed",
+                message: `You've withdrawn KSh ${amount.toLocaleString('en-KE', {minimumFractionDigits: 2})} to MPesa`,
+                amount: -amount,
+                date: new Date().toLocaleString('en-KE', {weekday: 'long', hour: '2-digit', minute: '2-digit'}),
+                icon: "fa-arrow-up",
+                color: "#EB5757",
+                read: false
+            };
+
+            notifications.unshift(notification);
+            currentUser.notifications.unshift(notification);
+
+            // Update storage
+            localStorage.setItem('pesaKenyaCurrentUser', JSON.stringify(currentUser));
+            updateBalance();
+            renderTransactions();
+            renderNotifications();
+            render profile picture();
+            return true;
+        }
+
+        // Send Money
+        function sendMoney(recipientPhone, amount, pin) {
+            if (amount <= 0) {
+                showToast('Please enter a valid amount', true);
+                return false;
+            }
+
+            if (amount > balance) {
+                showToast('Insufficient funds', true);
+                return false;
+            }
+
+            if (pin !== currentUser.pin) {
+                showToast('Incorrect PIN', true);
+                return false;
+            }
+
+            // Check if recipient exists (in a real app, this would check your backend)
+            const recipientExists = users.some(user => user.phone === recipientPhone);
+            if (!recipientExists) {
+                showToast('Recipient not found', true);
+                return false;
+            }
+
+            // Deduct from sender
+            balance -= amount;
+            currentUser.balance = balance;
+
+            // Add transaction for sender
+            const senderTransaction = {
+                id: Date.now().toString(),
+                type: "send",
+                title: `Sent to ${recipientPhone.substring(3)}`, // Remove country code
+                amount: -amount,
+                date: new Date().toLocaleString('en-KE', {weekday: 'long', hour: '2-digit', minute: '2-digit'}),
+                icon: "fa-paper-plane",
+                color: "#EB5757"
+            };
+
+            transactions.unshift(senderTransaction);
+            currentUser.transactions.unshift(senderTransaction);
+
+            // Add notification for sender
+            const senderNotification = {
+                id: Date.now().toString(),
+                type: "send",
+                title: "Money Sent",
+                message: `You've sent KSh ${amount.toLocaleString('en-KE', {minimumFractionDigits: 2})} to ${recipientPhone.substring(3)}`,
+                amount: -amount,
+                date: new Date().toLocaleString('en-KE', {weekday: 'long', hour: '2-digit', minute: '2-digit'}),
+                icon: "fa-paper-plane",
+                color: "#EB5757",
+                read: false
+            };
+
+            notifications.unshift(senderNotification);
+            currentUser.notifications.unshift(senderNotification);
+
+            // Credit recipient (in a real app, this would be a backend operation)
+            const recipient = users.find(user => user.phone === recipientPhone);
+            if (recipient) {
+                recipient.balance += amount;
+                
+                // Add transaction for recipient
+                const recipientTransaction = {
+                    id: Date.now().toString(),
+                    type: "receive",
+                    title: `Received from ${currentUser.phone.substring(3)}`,
+                    amount: amount,
+                    date: new Date().toLocaleString('en-KE', {weekday: 'long', hour: '2-digit', minute: '2-digit'}),
+                    icon: "fa-hand-holding-usd",
+                    color: "#27AE60"
+                };
+
+                recipient.transactions.unshift(recipientTransaction);
+                
+                // Add notification for recipient
+                const recipientNotification = {
+                    id: Date.now().toString(),
+                    type: "receive",
+                    title: "Money Received",
+                    message: `You've received KSh ${amount.toLocaleString('en-KE', {minimumFractionDigits: 2})} from ${currentUser.phone.substring(3)}`,
+                    amount: amount,
+                    date: new Date().toLocaleString('en-KE', {weekday: 'long', hour: '2-digit', minute: '2-digit'}),
+                    icon: "fa-hand-holding-usd",
+                    color: "#27AE60",
+                    read: false
+                };
+
+                recipient.notifications.unshift(recipientNotification);
+                
+                // Update recipient in users array
+                const recipientIndex = users.findIndex(user => user.id === recipient.id);
+                if (recipientIndex !== -1) {
+                    users[recipientIndex] = recipient;
+                    localStorage.setItem('pesaKenyaUsers', JSON.stringify(users));
+                }
+            }
+
+            // Update sender in storage
+            localStorage.setItem('pesaKenyaCurrentUser', JSON.stringify(currentUser));
+            updateBalance();
+            renderTransactions();
+            renderNotifications();
+
+            return true;
+        }
+
+        // Pay Bill
+        function payBill(biller, account, amount, pin) {
+            if (amount <= 0) {
+                showToast('Please enter a valid amount', true);
+                return false;
+            }
+
+            if (amount > balance) {
+                showToast('Insufficient funds', true);
+                return false;
+            }
+
+            if (pin !== currentUser.pin) {
+                showToast('Incorrect PIN', true);
+                return false;
+            }
+
+            balance -= amount;
+            currentUser.balance = balance;
+
+            // Add transaction
+            const transaction = {
+                id: Date.now().toString(),
+                type: "bill",
+                title: `${biller} Payment`,
+                amount: -amount,
+                date: new Date().toLocaleString('en-KE', {weekday: 'long', hour: '2-digit', minute: '2-digit'}),
+                icon: "fa-receipt",
+                color: "#F2994A"
+            };
+
+            transactions.unshift(transaction);
+            currentUser.transactions.unshift(transaction);
+
+            // Add notification
+            const notification = {
+                id: Date.now().toString(),
+                type: "bill",
+                title: "Bill Paid",
+                message: `You've paid KSh ${amount.toLocaleString('en-KE', {minimumFractionDigits: 2})} to ${biller}`,
+                amount: -amount,
+                date: new Date().toLocaleString('en-KE', {weekday: 'long', hour: '2-digit', minute: '2-digit'}),
+                icon: "fa-receipt",
+                color: "#F2994A",
+                read: false
+            };
+
+            notifications.unshift(notification);
+            currentUser.notifications.unshift(notification);
+
+            // Update storage
+            localStorage.setItem('pesaKenyaCurrentUser', JSON.stringify(currentUser));
+            updateBalance();
+            renderTransactions();
+            renderNotifications();
+
+            return true;
+        }
+
+        // Buy Airtime
+        function buyAirtime(phone, network, amount, pin) {
+            if (amount <= 0) {
+                showToast('Please enter a valid amount', true);
+                return false;
+            }
+
+            if (amount > balance) {
+                showToast('Insufficient funds', true);
+                return false;
+            }
+
+            if (pin !== currentUser.pin) {
+                showToast('Incorrect PIN', true);
+                return false;
+            }
+
+            balance -= amount;
+            currentUser.balance = balance;
+
+            // Add transaction
+            const transaction = {
+                id: Date.now().toString(),
+                type: "airtime",
+                title: `${network} Airtime`,
+                amount: -amount,
+                date: new Date().toLocaleString('en-KE', {weekday: 'long', hour: '2-digit', minute: '2-digit'}),
+                icon: "fa-mobile-alt",
+                color: "#9B51E0"
+            };
+
+            transactions.unshift(transaction);
+            currentUser.transactions.unshift(transaction);
+
+            // Add notification
+            const notification = {
+                id: Date.now().toString(),
+                type: "airtime",
+                title: "Airtime Purchased",
+                message: `You've bought KSh ${amount.toLocaleString('en-KE', {minimumFractionDigits: 2})} ${network} airtime`,
+                amount: -amount,
+                date: new Date().toLocaleString('en-KE', {weekday: 'long', hour: '2-digit', minute: '2-digit'}),
+                icon: "fa-mobile-alt",
+                color: "#9B51E0",
+                read: false
+            };
+
+            notifications.unshift(notification);
+            currentUser.notifications.unshift(notification);
+
+            // Update storage
+            localStorage.setItem('pesaKenyaCurrentUser', JSON.stringify(currentUser));
+            updateBalance();
+            renderTransactions();
+            renderNotifications();
+
+            return true;
+        }
+
+        // Event Listeners
+        document.getElementById('showRegister').addEventListener('click', (e) => {
+            e.preventDefault();
+            showRegisterScreen();
+        });
+
+        document.getElementById('showLogin').addEventListener('click', (e) => {
+            e.preventDefault();
+            showLoginScreen();
+        });
+
+        document.getElementById('loginBtn').addEventListener('click', () => {
+            const phone = `254${document.getElementById('loginPhone').value}`;
+            const pin = document.getElementById('loginPin').value;
+            
+            // Validation
+            if (phone.length !== 12 || isNaN(phone)) {
+                showToast('Please enter a valid 9-digit phone number', true);
+                return;
+            }
+            
+            if (pin.length !== 4 || isNaN(pin)) {
+                showToast('PIN must be 4 digits', true);
+                return;
+            }
+            
+            // Show loading state
+            document.getElementById('loginBtn').innerHTML = '<span class="spinner"></span> Signing In...';
+            document.getElementById('loginBtn').disabled = true;
+            
+            // Simulate login (in a real app, this would be an API call)
+            setTimeout(() => {
+                if (loginUser(phone, pin)) {
+                    showDashboard();
+                } else {
+                    showToast('Invalid phone number or PIN', true);
+                }
+                
+                document.getElementById('loginBtn').innerHTML = 'Sign In';
+                document.getElementById('loginBtn').disabled = false;
+            }, 1500);
+        });
+
+        document.getElementById('registerBtn').addEventListener('click', () => {
+            const name = document.getElementById('registerName').value.trim();
+            const phone = `254${document.getElementById('registerPhone').value}`;
+            const pin = document.getElementById('registerPin').value;
+            const pinConfirm = document.getElementById('registerPinConfirm').value;
+            
+            // Validation
+            if (name === '') {
+                showToast('Please enter your full name', true);
+                return;
+            }
+            
+            if (phone.length !== 12 || isNaN(phone)) {
+                showToast('Please enter a valid 9-digit phone number', true);
+                return;
+            }
+            
+            if (pin.length !== 4 || isNaN(pin)) {
+                showToast('PIN must be 4 digits', true);
+                return;
+            }
+            
+            if (pin !== pinConfirm) {
+                showToast('PINs do not match', true);
+                return;
+            }
+            
+            // Show loading state
+            document.getElementById('registerBtn').innerHTML = '<span class="spinner"></span> Creating Account...';
+            document.getElementById('registerBtn').disabled = true;
+            
+            // Simulate registration (in a real app, this would be an API call)
+            setTimeout(() => {
+                if (registerUser(name, phone, pin)) {
+                    showToast('Account created successfully! You received KSh 100 signup bonus!');
+                    showDashboard();
+                }
+                
+                document.getElementById('registerBtn').innerHTML = 'Create Account';
+                document.getElementById('registerBtn').disabled = false;
+            }, 1500);
+        });
+
+        // Navigation
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                item.classList.add('active');
+                
+                // In a real app, you would load different content based on the screen
+                const screen = item.getAttribute('data-screen');
+                if (screen === 'dashboard') {
+                    // Already on dashboard
+                } else if (screen === 'send') {
+                    showModal(document.getElementById('sendMoneyModal'));
+                } else if (screen === 'bills') {
+                    showModal(document.getElementById('payBillModal'));
+                } else if (screen === 'more') {
+                    showModal(document.getElementById('profileModal'));
+                }
+            });
+        });
+
+        // Quick Actions
+        document.getElementById('depositBtn').addEventListener('click', () => {
+            showModal(document.getElementById('depositModal'));
+        });
+
+        document.getElementById('withdrawBtn').addEventListener('click', () => {
+            showModal(document.getElementById('withdrawModal'));
+        });
+
+        document.getElementById('sendMoneyBtn').addEventListener('click', () => {
+            showModal(document.getElementById('sendMoneyModal'));
+        });
+
+        document.getElementById('requestMoneyBtn').addEventListener('click', () => {
+            showToast('To request money, ask the sender to use the Send Money feature');
+        });
+
+        document.getElementById('payBillBtn').addEventListener('click', () => {
+            showModal(document.getElementById('payBillModal'));
+        });
+
+        document.getElementById('buyAirtimeBtn').addEventListener('click', () => {
+            showModal(document.getElementById('buyAirtimeModal'));
+        });
+
+        document.getElementById('notificationsBtn').addEventListener('click', () => {
+            renderNotifications();
+            showModal(document.getElementById('notificationsModal'));
+        });
+
+        document.getElementById('profileBtn').addEventListener('click', () => {
+            updateProfileDisplay();
+            showModal(document.getElementById('profileModal'));
+        });
+
+        document.getElementById('viewAllTransactions').addEventListener('click', () => {
+            renderFullTransactionHistory();
+            showModal(document.getElementById('transactionHistoryModal'));
+        });
+
+        // Modal Close Buttons
+        document.getElementById('closeDepositModal').addEventListener('click', () => {
+            hideModal(document.getElementById('depositModal'));
+        });
+
+        document.getElementById('closeWithdrawModal').addEventListener('click', () => {
+            hideModal(document.getElementById('withdrawModal'));
+        });
+
+        document.getElementById('closeSendMoneyModal').addEventListener('click', () => {
+            hideModal(document.getElementById('sendMoneyModal'));
+        });
+
+        document.getElementById('closePayBillModal').addEventListener('click', () => {
+            hideModal(document.getElementById('payBillModal'));
+        });
+
+        document.getElementById('closeBuyAirtimeModal').addEventListener('click', () => {
+            hideModal(document.getElementById('buyAirtimeModal'));
+        });
+
+        document.getElementById('closeNotificationsModal').addEventListener('click', () => {
+            hideModal(document.getElementById('notificationsModal'));
+        });
+
+        document.getElementById('closeProfileModal').addEventListener('click', () => {
+            hideModal(document.getElementById('profileModal'));
+        });
+
+        document.getElementById('closeTransactionHistoryModal').addEventListener('click', () => {
+            hideModal(document.getElementById('transactionHistoryModal'));
+        });
+
+        document.getElementById('closeMpesaPaymentModal').addEventListener('click', () => {
+            hideModal(document.getElementById('mpesaPaymentModal'));
+        });
+
+        // Form Submissions
+        document.getElementById('confirmDeposit').addEventListener('click', () => {
+            const amount = parseFloat(document.getElementById('depositAmount').value);
+            if (initiateDeposit(amount)) {
+                document.getElementById('depositAmount').value = '';
+            }
+        });
+
+        document.getElementById('confirmWithdraw').addEventListener('click', () => {
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+            const pin = document.getElementById('withdrawPin').value;
+            if (withdraw(amount, pin)) {
+                showToast(`Successfully withdrew KSh ${amount.toLocaleString('en-KE', {minimumFractionDigits: 2})} to MPesa`);
+                hideModal(document.getElementById('withdrawModal'));
+                document.getElementById('withdrawAmount').value = '';
+                document.getElementById('withdrawPin').value = '';
+            }
+        });
+
+        document.getElementById('confirmSend').addEventListener('click', () => {
+            const phone = `254${document.getElementById('recipientPhone').value}`;
+            const amount = parseFloat(document.getElementById('sendAmount').value);
+            const pin = document.getElementById('sendPin').value;
+            
+            if (sendMoney(phone, amount, pin)) {
+                showToast(`Successfully sent KSh ${amount.toLocaleString('en-KE', {minimumFractionDigits: 2})} to ${phone.substring(3)}`);
+                hideModal(document.getElementById('sendMoneyModal'));
+                document.getElementById('recipientPhone').value = '';
+                document.getElementById('sendAmount').value = '';
+                document.getElementById('sendPin').value = '';
+            }
+        });
+
+        document.getElementById('confirmPayBill').addEventListener('click', () => {
+            const biller = document.getElementById('billerSelect').options[document.getElementById('billerSelect').selectedIndex].text;
+            const account = document.getElementById('billAccount').value;
+            const amount = parseFloat(document.getElementById('billAmount').value);
+            const pin = document.getElementById('billPin').value;
+            
+            if (payBill(biller, account, amount, pin)) {
+                showToast(`Successfully paid KSh ${amount.toLocaleString('en-KE', {minimumFractionDigits: 2})} to ${biller}`);
+                hideModal(document.getElementById('payBillModal'));
+                document.getElementById('billerSelect').selectedIndex = 0;
+                document.getElementById('billAccount').value = '';
+                document.getElementById('billAmount').value = '';
+                document.getElementById('billPin').value = '';
+            }
+        });
+
+        document.getElementById('confirmBuyAirtime').addEventListener('click', () => {
+            const phone = `254${document.getElementById('airtimePhone').value}`;
+            const network = document.getElementById('airtimeNetwork').options[document.getElementById('airtimeNetwork').selectedIndex].text;
+            const amount = parseFloat(document.getElementById('airtimeAmount').value);
+            const pin = document.getElementById('airtimePin').value;
+            
+            if (buyAirtime(phone, network, amount, pin)) {
+                showToast(`Successfully bought KSh ${amount.toLocaleString('en-KE', {minimumFractionDigits: 2})} ${network} airtime`);
+                hideModal(document.getElementById('buyAirtimeModal'));
+                document.getElementById('airtimePhone').value = '';
+                document.getElementById('airtimeAmount').value = '';
+                document.getElementById('airtimePin').value = '';
+            }
+        });
+
+        document.getElementById('confirmMpesaPayment').addEventListener('click', () => {
+            const transactionCode = document.getElementById('mpesaTransactionCode').value;
+            if (transactionCode) {
+                if (completeDeposit(transactionCode)) {
+                    showToast(`Deposit of KSh ${depositInProgress.amount.toLocaleString('en-KE', {minimumFractionDigits: 2})} successful!`);
+                    hideModal(document.getElementById('mpesaPaymentModal'));
+                    document.getElementById('mpesaTransactionCode').value = '';
+                }
+            } else {
+                showToast('Please enter the MPesa transaction code', true);
+            }
+        });
+
+        document.getElementById('cancelMpesaPayment').addEventListener('click', () => {
+            depositInProgress = null;
+            hideModal(document.getElementById('mpesaPaymentModal'));
+            showToast('Deposit cancelled');
+        });
+
+        document.getElementById('updateProfileBtn').addEventListener('click', () => {
+            const name = document.getElementById('profileNameInput').value.trim();
+            if (updateProfile(name)) {
+                showToast('Profile updated successfully!');
+                hideModal(document.getElementById('profileModal'));
+            }
+        });
+
+        // Profile Picture Upload
+        profilePicInput.addEventListener('change', function(e) {
+            if (this.files && this.files[0]) {
+                if (this.files[0].size > 2 * 1024 * 1024) { // 2MB limit
+                    showToast('Image size should be less than 2MB', true);
+                    return;
+                }
+                updateProfilePicture(this.files[0]);
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            logoutUser();
+            hideModal(document.getElementById('profileModal'));
+            showToast('Logged out successfully');
+        });
+
+        // Initialize the app
+        initApp();
+    </script>
+</body>
+</html>
